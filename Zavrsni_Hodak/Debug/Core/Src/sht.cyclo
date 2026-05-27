@@ -1,0 +1,6 @@
+../Core/Src/sht.c:7:6:SHT_Init	1
+../Core/Src/sht.c:14:6:SHT_ReadReg	1
+../Core/Src/sht.c:22:6:SHT_WriteReg	1
+../Core/Src/sht.c:28:6:SHT_GetValue	2
+../Core/Src/sht.c:46:6:SHT_GetTemp	1
+../Core/Src/sht.c:54:6:SHT_GetHum	3
