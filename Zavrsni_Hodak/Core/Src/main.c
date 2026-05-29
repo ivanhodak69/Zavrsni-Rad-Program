@@ -118,13 +118,12 @@ int main(void)
   MX_I2C1_Init();
   MX_USART1_UART_Init();
   MX_USART2_UART_Init();
-  MX_TIM1_Init();
   MX_TIM6_Init();
+  MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
 
   SHT_Init();
   HAL_GPIO_WritePin(GPIOC, GPIO_PIN_8, 0);
-  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_6, 1);
   HAL_TIM_Base_Start_IT(&htim6);
 
   /* USER CODE END 2 */
@@ -141,9 +140,11 @@ int main(void)
 
 	  if(flag == 1)
 	  {
-		  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+		  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
 		  flag = 0;
 	  }
+	  printf("Temp = %.2fC Hum = %.2f", temp, hum);
+	  printf("\tSpeed: %d last_data = %d", puls, last_data);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -221,38 +222,38 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	  sprintf(buffer, "%.2f,%.2f\n", temp, hum);
 	  HAL_UART_Transmit_IT(&huart1, (uint8_t*)buffer, 12);
 
-	  printf("Temp = %.2fC Hum = %.2f", temp, hum);
-	  printf("\tSpeed: %d last_data = %d", puls, last_data);
 
 
-	  if(last_data == 50)
-	  {
-		  if(temp >= 26 || hum >= 55)
+
+	 // if(last_data == 50)
+	  //{
+		  if(temp >= 28 || hum >= 55)
 		  {
-			  __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, 70);
+			  __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 70);
 		  }
 		  if(temp >= 31 || hum >= 65)
 		  {
-			  __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, 85);
+			  __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 85);
 		  }
-		  if(temp >= 36 || hum >= 70)
+		  if(temp >= 34 || hum >= 70)
 		  {
-			  __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, 100);
+			  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, 1);
+			  __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 100);
 		  }
 
-	  }
+	 // }
 	  if(last_data == 48)
 	  {
-		  HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_1);
+		  HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1);
 		  puls = 0;
 	  }
 	  if(last_data == 49)
 	  {
 		  flag = 1;
-  		  __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, 100);
+  		  __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 100);
   		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, 1);
 	  }
-	  puls = __HAL_TIM_GET_COMPARE(&htim1, TIM_CHANNEL_1);
+	  puls = __HAL_TIM_GET_COMPARE(&htim3, TIM_CHANNEL_1);
   }
 
 }
