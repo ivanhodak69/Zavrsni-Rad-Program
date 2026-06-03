@@ -78,7 +78,7 @@ void SystemClock_Config(void);
 /* USER CODE BEGIN 0 */
 
 uint8_t Data, puls, last_data;
-uint8_t flag=1;
+uint8_t flag=1, aut=1;
 float temp, hum;
 char buffer[20];
 
@@ -138,10 +138,11 @@ int main(void)
 
 	  HAL_UART_Receive_IT(&huart1, &Data, 1);
 
-	  if(flag == 1)
+	  if(flag == 1 || aut == 1)
 	  {
 		  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
 		  flag = 0;
+		  aut=0;
 	  }
 	  printf("Temp = %.2fC Hum = %.2f", temp, hum);
 	  printf("\tSpeed: %d last_data = %d", puls, last_data);
@@ -219,14 +220,17 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
   if(htim->Instance == TIM6)
   {
-	  sprintf(buffer, "%.2f,%.2f\n", temp, hum);
+	  sprintf(buffer, "%.2f,%.2f,\n", temp, hum);
 	  HAL_UART_Transmit_IT(&huart1, (uint8_t*)buffer, 12);
 
 
-
-
-	 // if(last_data == 50)
-	  //{
+	 if(last_data == 50)
+	  {
+		 aut=1;
+		  if(temp >= 24)
+		  {
+			  __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 50);
+		  }
 		  if(temp >= 28 || hum >= 55)
 		  {
 			  __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 70);
@@ -235,13 +239,12 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		  {
 			  __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 85);
 		  }
-		  if(temp >= 34 || hum >= 70)
+		  if(temp >= 33 || hum >= 70)
 		  {
-			  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, 1);
 			  __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 100);
 		  }
 
-	 // }
+	  }
 	  if(last_data == 48)
 	  {
 		  HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1);
