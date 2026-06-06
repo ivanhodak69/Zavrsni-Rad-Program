@@ -117,7 +117,6 @@ int main(void)
   MX_GPIO_Init();
   MX_I2C1_Init();
   MX_USART1_UART_Init();
-  MX_USART2_UART_Init();
   MX_TIM6_Init();
   MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
@@ -144,6 +143,7 @@ int main(void)
 		  flag = 0;
 		  aut=0;
 	  }
+
 	  printf("Temp = %.2fC Hum = %.2f", temp, hum);
 	  printf("\tSpeed: %d last_data = %d", puls, last_data);
     /* USER CODE END WHILE */
@@ -227,7 +227,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	 if(last_data == 50)
 	  {
 		 aut=1;
-		  if(temp >= 24)
+		  if(temp >= 24 || hum >= 45)
 		  {
 			  __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 50);
 		  }
@@ -239,7 +239,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		  {
 			  __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 85);
 		  }
-		  if(temp >= 33 || hum >= 70)
+		  if(temp >= 33 || hum >= 75)
 		  {
 			  __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 100);
 		  }
