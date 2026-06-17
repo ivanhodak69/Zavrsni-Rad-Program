@@ -119,9 +119,10 @@ int main(void)
   MX_USART1_UART_Init();
   MX_TIM6_Init();
   MX_TIM3_Init();
+  SHT_Init();
   /* USER CODE BEGIN 2 */
 
-  SHT_Init();
+
   HAL_GPIO_WritePin(GPIOC, GPIO_PIN_8, 0);
   HAL_TIM_Base_Start_IT(&htim6);
 
@@ -143,9 +144,6 @@ int main(void)
 		  flag = 0;
 		  aut=0;
 	  }
-
-	  printf("Temp = %.2fC Hum = %.2f", temp, hum);
-	  printf("\tSpeed: %d last_data = %d", puls, last_data);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -199,20 +197,19 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 	  {
 	    if(huart->Instance==USART1)
 	    {
-	    	HAL_UART_Receive_IT(&huart1, &Data, 1); // Enabling interrupt receive again
-	  	  if(Data==49)//Manual On
+	    	HAL_UART_Receive_IT(&huart1, &Data, 1); //Omogućeno primanje podataka u prekidnom načinu rada ponovno
+	  	  if(Data==49)//Manual On - ASCII za 1
 	  	  {
 	  		last_data = 49;
 	  	  }
-	  	  if(Data==48)//Manual Off
+	  	  if(Data==48)//Manual Off - ASCII za 0
 	  	  {
 			  last_data = 48;
 	  	  }
-	  	  if(Data == 50)
+	  	  if(Data == 50)//Auto način rada - ASCII za 2
 	  	  {
 	  		  last_data = 50;
 	  	  }
-
 	    }
 	  }
 
@@ -223,10 +220,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	  sprintf(buffer, "%.2f,%.2f,\n", temp, hum);
 	  HAL_UART_Transmit_IT(&huart1, (uint8_t*)buffer, 12);
 
-
 	 if(last_data == 50)
 	  {
-		 aut=1;
+		 aut = 1;
 		  if(temp >= 24 || hum >= 45)
 		  {
 			  __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 50);
@@ -248,7 +244,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	  if(last_data == 48)
 	  {
 		  HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1);
-		  puls = 0;
 	  }
 	  if(last_data == 49)
 	  {
@@ -256,9 +251,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   		  __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 100);
   		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, 1);
 	  }
-	  puls = __HAL_TIM_GET_COMPARE(&htim3, TIM_CHANNEL_1);
   }
-
 }
 /* USER CODE END 4 */
 
