@@ -34,17 +34,8 @@
 #define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
 #define GETCHAR_PROTOTYPE int fgetc(FILE *f)
 #endif
-PUTCHAR_PROTOTYPE {
-HAL_UART_Transmit(&huart2, (uint8_t*) &ch, 1, HAL_MAX_DELAY);
-return ch;
-}
-GETCHAR_PROTOTYPE {
-uint8_t ch = 0;
-__HAL_UART_CLEAR_OREFLAG(&huart2);
-HAL_UART_Receive(&huart2, (uint8_t*) &ch, 1, HAL_MAX_DELAY);
-HAL_UART_Transmit(&huart2, (uint8_t*) &ch, 1, HAL_MAX_DELAY);
-return ch;
-}
+
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -197,7 +188,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 	  {
 	    if(huart->Instance==USART1)
 	    {
-	    	HAL_UART_Receive_IT(&huart1, &Data, 1); //Omogućeno primanje podataka u prekidnom načinu rada ponovno
+
 	  	  if(Data==49)//Manual On - ASCII za 1
 	  	  {
 	  		last_data = 49;
@@ -217,7 +208,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
   if(htim->Instance == TIM6)
   {
-	  sprintf(buffer, "%.2f,%.2f,\n", temp, hum);
+	  sprintf(buffer, "%.2f,%.2f,\n", temp, hum); //Spremanje podataka u jedan string
 	  HAL_UART_Transmit_IT(&huart1, (uint8_t*)buffer, 12);
 
 	 if(last_data == 50)
